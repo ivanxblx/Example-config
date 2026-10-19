@@ -1,0 +1,15 @@
+SELECT
+  'SELECT '
+  || array_join(array_agg(column_name ORDER BY ordinal_position)
+       FILTER (WHERE column_name NOT LIKE 'xbrl%'), ', ')
+  || ', json_format(CAST(MAP(ARRAY['
+  || array_join(array_agg('''' || column_name || '''' ORDER BY ordinal_position)
+       FILTER (WHERE column_name LIKE 'xbrl%'), ', ')
+  || '], ARRAY['
+  || array_join(array_agg('CAST(' || column_name || ' AS JSON)' ORDER BY ordinal_position)
+       FILTER (WHERE column_name LIKE 'xbrl%'), ', ')
+  || ']) AS JSON)) AS xbrl_json FROM "PASTE_SCHEMA_HERE".""'
+  AS generated_sql
+FROM information_schema.columns
+WHERE table_schema = 'PASTE_SCHEMA_HERE'
+  AND table_name = ''
